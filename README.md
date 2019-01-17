@@ -1,5 +1,6 @@
 # tdd-workshop
 [![Build Status](https://travis-ci.org/zouchao/tdd-workshop.svg?branch=master)](https://travis-ci.org/zouchao/tdd-workshop)
+[![Coverage Status](https://coveralls.io/repos/github/zouchao/tdd-workshop/badge.svg)](https://coveralls.io/github/zouchao/tdd-workshop)
 
 # Learning notes
 - init project: `rails new tdd-workshop --database=postgresql --skip-active-storage --skip-coffee -T -B`
