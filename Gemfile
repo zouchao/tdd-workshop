@@ -54,7 +54,7 @@ group :development do
   gem 'rubocop', require: false
 end
 
-group :development do
+group :development, :test do
   gem 'shoulda-matchers', '4.0.0.rc1'
   gem 'rails-controller-testing'
   gem 'database_cleaner'
