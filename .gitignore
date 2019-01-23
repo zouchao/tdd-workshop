@@ -25,3 +25,5 @@
 .*.sw[a-z]
 .code
 .idea
+.coveralls.yml
+coverage/
