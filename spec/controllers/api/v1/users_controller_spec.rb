@@ -11,8 +11,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     it { should respond_with 200 }
 
     it 'returns a user response' do
-      json_response = JSON.parse response.body, symbolize_names: true
-      expect(json_response[:email]).to eq @user.email
+      expect(json_response[:data][:attributes][:email]).to eq @user.email
     end
   end
 
@@ -26,8 +25,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it { should respond_with 201 }
 
       it 'returns the user record just created' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:email]).to eq @user_attributes[:email]
+        expect(json_response[:data][:attributes][:email]).to eq @user_attributes[:email]
       end
     end
 
@@ -40,13 +38,11 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it { should respond_with 422 }
 
       it 'render errors json' do
-        json_response = JSON.parse response.body, symbolize_names: true
         expect(json_response).to have_key(:errors)
       end
 
       it 'render errors json with detail message' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:errors][:email]).to include("can't be blank")
+        expect(json_response[:errors].first[:detail]).to include("can't be blank")
       end
     end
   end
@@ -56,6 +52,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 
     context 'when updated successfully' do
       before :each do
+        api_authorization_header user.auth_token
         @update_attrs = { email: 'superman@sdy.cn' }
         put :update, params: { id: user, user: @update_attrs }
       end
@@ -63,13 +60,13 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it { should respond_with 200 }
 
       it 'returns the user record just created' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:email]).to eq @update_attrs[:email]
+        expect(json_response[:data][:attributes][:email]).to eq @update_attrs[:email]
       end
     end
 
     context 'when updated failed' do
       before :each do
+        api_authorization_header user.auth_token
         @invaild_update_attrs = { email: nil }
         put :update, params: { id: user, user: @invaild_update_attrs }
       end
@@ -77,22 +74,21 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it { should respond_with 422 }
 
       it 'render errors json with detail message' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:errors][:email]).to include("can't be blank")
+        expect(json_response[:errors].first[:detail]).to include("can't be blank")
       end
     end
 
     context 'When the id does not exist' do
       before :each do
+        api_authorization_header "abcd"
         @update_attrs = { email: 'superman@sdy.cn' }
         put :update, params: { id: 0, user: @update_attrs }
       end
 
-      it { should respond_with 404 }
+      it { should respond_with 401 }
 
       it 'render errors json with detail message' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:errors]).to include('Not found')
+        expect(json_response[:errors]).to include('Not authenticated')
       end
     end
   end
@@ -101,7 +97,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     context 'when deleted successfully' do
       before :each do
         user = create :user
-        @update_attrs = { email: 'superman@sdy.cn' }
+        api_authorization_header user.auth_token
         delete :destroy, params: { id: user }
       end
 
@@ -110,7 +106,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       it { expect(User.count).to eq 0 }
 
       it 'render success json with detail message' do
-        json_response = JSON.parse response.body, symbolize_names: true
         expect(json_response[:message]).to include('Deleted')
       end
     end
@@ -121,13 +116,12 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         delete :destroy, params: { id: 0 }
       end
 
-      it { should respond_with 404 }
+      it { should respond_with 401 }
 
       it { expect(User.count).to eq 1 }
 
       it 'render errors json with detail message' do
-        json_response = JSON.parse response.body, symbolize_names: true
-        expect(json_response[:errors]).to include('Not found')
+        expect(json_response[:errors]).to include('Not authenticated')
       end
     end
   end
