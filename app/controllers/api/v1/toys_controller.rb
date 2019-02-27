@@ -1,9 +1,9 @@
 class Api::V1::ToysController < ApplicationController
-  before_action :authenticate_with_token!, only: [:create, :update]
+  before_action :authenticate_with_token!, only: [:create, :update, :destroy]
 
 
   def index
-    toys = Toy.all
+    toys = Toy.search params
   end
 
   def show
@@ -21,7 +21,7 @@ class Api::V1::ToysController < ApplicationController
   end
 
   def update
-    toy = Toy.find_by(id: params[:id], user_id: current_user.id)
+    toy = current_user.toys.find_by id: params[:id]
     return render json: { errors: 'params invalid' }, status: 422 if toy.blank?
 
     if toy.update_attributes toy_params
@@ -32,7 +32,7 @@ class Api::V1::ToysController < ApplicationController
   end
 
   def destroy
-    toy = Toy.find_by(id: params[:id], user_id: current_user.id)
+    toy = current_user.toys.find_by id: params[:id]
     return render json: { errors: 'params invalid' }, status: 422 if toy.blank?
     toy.destroy
     head 204

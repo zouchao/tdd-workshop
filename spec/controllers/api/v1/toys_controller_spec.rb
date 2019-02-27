@@ -7,15 +7,20 @@ RSpec.describe Api::V1::ToysController, type: :controller do
   end
 
   describe 'GET #show' do
+    let(:user) { create :user }
+    let(:toy) { create :toy, user: user }
     before :each do
-      @toy = create :toy
-      get :show, params: { id: @toy.id }
+      get :show, params: { id: toy.id }
     end
 
     it { should respond_with 200 }
 
     it 'returns a toy response' do
-      expect(json_response[:data][:attributes][:title]).to eq @toy.title
+      expect(json_response[:data][:attributes][:title]).to eq toy.title
+    end
+
+    it 'retuns user relationships in toy' do
+      expect(json_response[:data][:relationships][:user][:data][:id].to_i).to eq user.id
     end
   end
 
