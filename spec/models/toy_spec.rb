@@ -19,6 +19,8 @@ RSpec.describe Toy, type: :model do
   it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
 
   it { should belong_to :user }
+  it { should have_many(:orders).through :placements }
+  it { should have_many :placements }
 
   describe '#filter_by_title to search toys match title keyword' do
     before :each do
