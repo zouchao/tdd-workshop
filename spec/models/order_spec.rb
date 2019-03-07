@@ -16,6 +16,19 @@ RSpec.describe Order, type: :model do
   it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
 
   it { should belong_to :user }
-  it { should have_many :toys }
+  it { should have_many(:toys).through :placements }
   it { should have_many :placements }
+
+  describe '#set_total!' do
+    before :each do
+      toy1 = create :toy, price: 100
+      toy2 = create :toy, price: 85
+
+      @order = build :order, toy_ids: [toy1.id, toy2.id]
+    end
+
+    it 'returns the total amount to pay for the toys' do
+      expect { @order.set_total! }.to change { @order.total }.from(0).to(185)
+    end
+  end
 end
